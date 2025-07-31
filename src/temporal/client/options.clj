@@ -2,6 +2,7 @@
   (:require [temporal.internal.utils :as u])
   (:import [io.temporal.client WorkflowClientOptions WorkflowClientOptions$Builder]
            [io.temporal.common.interceptors WorkflowClientInterceptorBase]
+           [io.temporal.common.auth AuthorizationTokenSupplier]
            [io.temporal.client.schedules ScheduleClientOptions ScheduleClientOptions$Builder]
            [io.temporal.serviceclient WorkflowServiceStubs WorkflowServiceStubsOptions WorkflowServiceStubsOptions$Builder]))
 
@@ -83,6 +84,10 @@
    :keepalive-timeout        #(.setKeepAliveTimeout ^WorkflowServiceStubsOptions$Builder %1 %2)
    :keepalive-without-stream #(.setKeepAlivePermitWithoutStream ^WorkflowServiceStubsOptions$Builder %1 %2)
    :metrics-scope            #(.setMetricsScope ^WorkflowServiceStubsOptions$Builder %1 %2)})
+   :api-key                  (fn [builder token]
+                               (.addApiKey builder
+                                 (reify io.temporal.common.auth.AuthorizationTokenSupplier
+                                   (supply [_] token))))
 
 (defn stub-options->
   ^WorkflowServiceStubsOptions [params]
